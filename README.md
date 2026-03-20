@@ -37,6 +37,25 @@ This MCP server provides the following tools for Splunk integration:
    
    Edit `.env` and add your Splunk credentials:
    ```env
+
+## Deployment
+
+### Deploy to Render
+
+This server can be easily deployed to Render.com for cloud hosting:
+
+1. **Quick Deploy**: See [DEPLOY_RENDER.md](DEPLOY_RENDER.md) for detailed instructions
+2. **One-Click Deploy**: Use the `render.yaml` configuration file
+3. **Free Tier Available**: Start with Render's free tier
+
+Key features when deployed:
+- Accessible via HTTPS
+- Automatic SSL certificates
+- Environment variable management
+- Continuous deployment from Git
+- Built-in monitoring and logs
+
+For complete deployment instructions, see [DEPLOY_RENDER.md](DEPLOY_RENDER.md).
    SPLUNK_HOST=your-splunk-host.com
    SPLUNK_PORT=8089
    SPLUNK_USERNAME=your_username

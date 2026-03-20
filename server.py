@@ -301,8 +301,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--port",
         type=int,
-        default=8000,
-        help="Port for SSE transport (default: 8000)"
+        default=None,
+        help="Port for SSE transport (default: 8000, or PORT env var)"
     )
     parser.add_argument(
         "--host",
@@ -312,10 +312,13 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     
+    # Use PORT from environment (for Render/Heroku) or command line arg or default
+    port = args.port or int(os.getenv("PORT", "8000"))
+    
     if args.transport == "sse":
-        print(f"Starting Splunk MCP Server with SSE transport on {args.host}:{args.port}", file=sys.stderr)
-        print(f"Connect your MCP client to: http://{args.host}:{args.port}/sse", file=sys.stderr)
-        mcp.run(transport="sse", host=args.host, port=args.port)
+        print(f"Starting Splunk MCP Server with SSE transport on {args.host}:{port}", file=sys.stderr)
+        print(f"Connect your MCP client to: http://{args.host}:{port}/sse", file=sys.stderr)
+        mcp.run(transport="sse", host=args.host, port=port)
     else:
         print("Starting Splunk MCP Server with stdio transport", file=sys.stderr)
         mcp.run(transport="stdio")
