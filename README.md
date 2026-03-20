@@ -48,13 +48,98 @@ This MCP server provides the following tools for Splunk integration:
 
 ### Running the Server
 
-Start the MCP server:
+The server supports two transport protocols:
+
+#### 1. stdio Transport (Default)
+
+For use with Claude Desktop and other stdio-based MCP clients:
 
 ```bash
 python server.py
+# or explicitly
+python server.py --transport stdio
 ```
 
-The server will start and listen for MCP client connections.
+#### 2. SSE Transport (Server-Sent Events)
+
+For HTTP-based MCP clients and testing:
+
+```bash
+python server.py --transport sse --port 8000 --host 127.0.0.1
+```
+
+### Testing the Server
+
+#### Test with MCP Client
+
+A test client is provided to verify the SSE endpoint:
+
+```bash
+# Start the server in SSE mode (in one terminal)
+python server.py --transport sse --port 8000
+
+# Run the test client (in another terminal)
+python test_mcp_client.py
+
+# Test with Splunk tool execution (requires configured .env)
+python test_mcp_client.py --test-tool
+```
+
+The test client will:
+1. Check server availability
+2. Send initialize request
+3. List available tools
+4. Optionally test calling a Splunk tool
+
+#### Test with curl
+
+You can also test the SSE endpoint with curl:
+
+```bash
+# Initialize connection
+curl -X POST http://127.0.0.1:8000/sse \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+      "protocolVersion": "2024-11-05",
+      "capabilities": {},
+      "clientInfo": {"name": "test", "version": "1.0.0"}
+    }
+  }'
+
+# List tools
+curl -X POST http://127.0.0.1:8000/sse \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 2,
+    "method": "tools/list",
+    "params": {}
+  }'
+
+# Call a tool
+curl -X POST http://127.0.0.1:8000/sse \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 3,
+    "method": "tools/call",
+    "params": {
+      "name": "get_splunk_info",
+      "arguments": {}
+    }
+  }'
+```
+
+The SSE endpoint will be available at: `http://127.0.0.1:8000/sse`
+
+**SSE Options:**
+- `--transport sse`: Use SSE transport protocol
+- `--port PORT`: Port number (default: 8000)
+- `--host HOST`: Host address (default: 127.0.0.1)
 
 ### Using with Claude Desktop
 

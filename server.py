@@ -2,9 +2,11 @@
 """
 Splunk MCP Server - FastMCP integration with Splunk
 Provides tools to interact with Splunk for searching, querying, and managing data.
+Supports both stdio and SSE transport protocols.
 """
 
 import os
+import sys
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 import splunklib.client as client
@@ -15,8 +17,8 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Initialize FastMCP server
-mcp = FastMCP("Splunk MCP Server")
+# Initialize FastMCP server with SSE support
+mcp = FastMCP("Splunk MCP Server", dependencies=["splunk-sdk>=2.0.0"])
 
 # Splunk connection configuration
 SPLUNK_HOST = os.getenv("SPLUNK_HOST", "localhost")
@@ -287,7 +289,35 @@ def get_splunk_info() -> Dict[str, Any]:
 
 
 if __name__ == "__main__":
-    # Run the MCP server
-    mcp.run()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Splunk MCP Server")
+    parser.add_argument(
+        "--transport",
+        choices=["stdio", "sse"],
+        default="stdio",
+        help="Transport protocol to use (default: stdio)"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port for SSE transport (default: 8000)"
+    )
+    parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host for SSE transport (default: 127.0.0.1)"
+    )
+    
+    args = parser.parse_args()
+    
+    if args.transport == "sse":
+        print(f"Starting Splunk MCP Server with SSE transport on {args.host}:{args.port}", file=sys.stderr)
+        print(f"Connect your MCP client to: http://{args.host}:{args.port}/sse", file=sys.stderr)
+        mcp.run(transport="sse", host=args.host, port=args.port)
+    else:
+        print("Starting Splunk MCP Server with stdio transport", file=sys.stderr)
+        mcp.run(transport="stdio")
 
 # Made with Bob
