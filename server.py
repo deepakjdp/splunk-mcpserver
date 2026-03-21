@@ -18,7 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize FastMCP server with SSE support
-mcp = FastMCP("Splunk MCP Server", dependencies=["splunk-sdk>=2.0.0"])
+mcp = FastMCP("Splunk MCP Server")
 
 # Splunk connection configuration
 SPLUNK_HOST = os.getenv("SPLUNK_HOST", "localhost")
